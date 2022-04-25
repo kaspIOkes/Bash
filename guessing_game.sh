@@ -87,7 +87,4 @@ do
 done
 
 printf "${RED}Game Over${C_END}\n\n"
-
-
-
-
+read -p "Press [Enter] key to close the program..."
