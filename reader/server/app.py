@@ -1,6 +1,4 @@
 import base64
-import os
-import tempfile
 from pathlib import Path
 
 from flask import Flask, jsonify, request, send_from_directory
@@ -42,13 +40,7 @@ def speak():
     if not model_path.exists():
         return jsonify({"error": f"unknown voice: {voice}"}), 400
 
-    fd, wav_path = tempfile.mkstemp(suffix=".wav")
-    os.close(fd)
-    try:
-        timings = synthesize(text, str(model_path), wav_path)
-        audio_bytes = Path(wav_path).read_bytes()
-    finally:
-        os.remove(wav_path)
+    audio_bytes, timings = synthesize(text, str(model_path))
 
     return jsonify({
         "audio_base64": base64.b64encode(audio_bytes).decode("ascii"),
