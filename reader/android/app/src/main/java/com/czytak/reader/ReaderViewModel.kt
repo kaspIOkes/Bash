@@ -1,6 +1,7 @@
 package com.czytak.reader
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,7 +17,7 @@ import kotlinx.coroutines.withContext
 data class Sentence(val words: List<String>, val translation: String)
 
 class ReaderViewModel : ViewModel() {
-    var serverUrl by mutableStateOf("http://10.0.2.2:5001")
+    var serverUrl by mutableStateOf(DEFAULT_SERVER_URL)
     var sourceText by mutableStateOf("")
     var translationText by mutableStateOf("")
     var voices by mutableStateOf<List<String>>(emptyList())
@@ -38,11 +39,22 @@ class ReaderViewModel : ViewModel() {
     private var lastSynthesizedText: String? = null
     private var speechController: SpeechController? = null
     private var pollJob: Job? = null
+    private var prefs: SharedPreferences? = null
 
     fun attachContext(context: Context) {
         if (speechController == null) {
             speechController = SpeechController(context.applicationContext)
         }
+        if (prefs == null) {
+            val p = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs = p
+            serverUrl = p.getString(KEY_SERVER_URL, DEFAULT_SERVER_URL) ?: DEFAULT_SERVER_URL
+        }
+    }
+
+    fun setServerUrl(url: String) {
+        serverUrl = url
+        prefs?.edit()?.putString(KEY_SERVER_URL, url)?.apply()
     }
 
     fun loadVoices() {
@@ -152,5 +164,11 @@ class ReaderViewModel : ViewModel() {
     override fun onCleared() {
         pollJob?.cancel()
         speechController?.release()
+    }
+
+    companion object {
+        private const val PREFS_NAME = "czytak_prefs"
+        private const val KEY_SERVER_URL = "server_url"
+        private const val DEFAULT_SERVER_URL = "http://10.0.2.2:5001"
     }
 }

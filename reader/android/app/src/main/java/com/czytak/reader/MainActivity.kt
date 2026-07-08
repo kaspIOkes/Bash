@@ -67,7 +67,7 @@ fun ReaderScreen(viewModel: ReaderViewModel) {
 
         OutlinedTextField(
             value = viewModel.serverUrl,
-            onValueChange = { viewModel.serverUrl = it },
+            onValueChange = { viewModel.setServerUrl(it) },
             label = { Text("Adres serwera (reader/server)") },
             modifier = Modifier.fillMaxWidth()
         )
