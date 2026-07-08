@@ -1,0 +1,3 @@
+server/voices/
+__pycache__/
+*.pyc
